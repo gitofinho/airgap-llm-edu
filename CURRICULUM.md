@@ -28,6 +28,11 @@
 - **핵심 키워드**: temperature, top_p, streaming, function calling, context window
 - **실습**: OpenAI + LangChain 스트리밍, 토큰 비용 계산
 
+#### 1-5. AI Agent와 LangGraph (45m)
+- **학습목표**: ReAct 패턴을 이해하고, LangGraph `create_react_agent`로 도구 호출 에이전트를 구성할 수 있다.
+- **핵심 키워드**: ReAct, Agent, Tool, LangGraph, create_react_agent, MemorySaver, Human-in-the-loop
+- **실습**: 커스텀 도구 정의 → ReAct 에이전트 → 대화 기억(MemorySaver) → Human-in-the-loop 승인 패턴
+
 ### Session 2 · RAG 기본 (2.5h)
 
 #### 2-1. 문서 로더와 청킹 (45m)

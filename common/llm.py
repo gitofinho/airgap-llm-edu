@@ -22,10 +22,12 @@ def get_llm(temperature: float = 0.0, streaming: bool = False, **kwargs: Any):
     if provider == "openai":
         from langchain_openai import ChatOpenAI
 
+        base_url = os.getenv("OPENAI_API_BASE")
         return ChatOpenAI(
             model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             temperature=temperature,
             streaming=streaming,
+            **({"base_url": base_url} if base_url else {}),
             **kwargs,
         )
 
@@ -50,8 +52,10 @@ def get_embeddings():
     if provider == "openai":
         from langchain_openai import OpenAIEmbeddings
 
+        base_url = os.getenv("OPENAI_API_BASE")
         return OpenAIEmbeddings(
             model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+            **({"openai_api_base": base_url} if base_url else {}),
         )
 
     if provider == "local":

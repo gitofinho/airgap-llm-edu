@@ -7,7 +7,7 @@
 
 | Day | 세션 | 시간 | 주제 |
 |-----|------|------|------|
-| Day 1 | Session 1 (기초) | 2.5h | LLM 기초 — Transformer·Attention·토큰화·임베딩 |
+| Day 1 | Session 1 (기초) | 2.5h | LLM 기초 — Transformer·Attention·토큰화·임베딩·Agent |
 | Day 1 | Session 2 (심화) | 2.5h | RAG 기본 — 로더·분할·벡터스토어·검색·LCEL·RAGAS |
 | Day 2 | Session 3 (기초) | 2.5h | Advanced RAG + GraphRAG |
 | Day 2 | Session 4 (심화) | 2.5h | 보안·규제 + 웹서비스(OpenWebUI) + Airgap 전환 |
