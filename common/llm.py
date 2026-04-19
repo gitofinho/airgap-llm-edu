@@ -1,8 +1,8 @@
-"""Provider-agnostic LLM / Embeddings 팩토리.
+"""OpenAI(호환) 모델 팩토리.
 
-.env의 LLM_PROVIDER와 EMBEDDING_PROVIDER에 따라 OpenAI 또는 Ollama/로컬로 전환한다.
-모든 노트북이 이 헬퍼를 사용하면, Day 2 S4-5에서 환경변수 한 줄만 바꿔
-동일한 파이프라인을 로컬 모델로 재실행할 수 있다.
+OpenRouter 같은 OpenAI 호환 게이트웨이를 쓸 때는 `.env`에
+`OPENAI_API_BASE=https://openrouter.ai/api/v1`, `OPENAI_MODEL=openai/gpt-4o-mini`
+와 같은 식으로 지정한다. `ChatOpenAI`의 `base_url`/`model` 인자로 그대로 전달된다.
 """
 from __future__ import annotations
 
@@ -15,64 +15,55 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def get_llm(temperature: float = 0.0, streaming: bool = False, **kwargs: Any):
-    """LLM_PROVIDER에 따라 ChatOpenAI 또는 ChatOllama를 반환한다."""
-    provider = os.getenv("LLM_PROVIDER", "openai").lower()
+def _clean_env(name: str, default: str = "") -> str:
+    """환경변수에서 인라인 주석(#...) 과 주변 공백을 제거해 돌려준다.
 
-    if provider == "openai":
-        from langchain_openai import ChatOpenAI
-
-        base_url = os.getenv("OPENAI_API_BASE")
-        return ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            temperature=temperature,
-            streaming=streaming,
-            **({"base_url": base_url} if base_url else {}),
-            **kwargs,
-        )
-
-    if provider == "ollama":
-        from langchain_ollama import ChatOllama
-
-        return ChatOllama(
-            model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct"),
-            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-            temperature=temperature,
-            **kwargs,
-        )
-
-    raise ValueError(f"Unknown LLM_PROVIDER: {provider!r}")
+    python-dotenv는 따옴표 없는 값의 인라인 주석을 떼지 않기 때문에,
+    사용자가 `.env`에 `OPENAI_MODEL=gpt-4o-mini   # 모델 이름`처럼 써 두면
+    `'gpt-4o-mini   # 모델 이름'` 전체가 값으로 잡힌다. 이를 방어한다.
+    """
+    raw = os.getenv(name, default)
+    return raw.split("#", 1)[0].strip()
 
 
-@lru_cache(maxsize=4)
+def get_chat_model(temperature: float = 0.0, streaming: bool = False, **kwargs: Any):
+    """`ChatOpenAI` 인스턴스를 환경변수 기반으로 생성해 반환한다.
+
+    읽는 env:
+        OPENAI_API_KEY  — 인증 (필수)
+        OPENAI_API_BASE — OpenRouter 등 호환 게이트웨이 URL (선택)
+        OPENAI_MODEL    — 모델 이름 (기본 'gpt-4o-mini')
+    """
+    from langchain_openai import ChatOpenAI
+
+    base_url = _clean_env("OPENAI_API_BASE") or None
+    return ChatOpenAI(
+        model=_clean_env("OPENAI_MODEL", "gpt-4o-mini"),
+        temperature=temperature,
+        streaming=streaming,
+        **({"base_url": base_url} if base_url else {}),
+        **kwargs,
+    )
+
+
+@lru_cache(maxsize=2)
 def get_embeddings():
-    """EMBEDDING_PROVIDER에 따라 OpenAI 또는 HuggingFace 로컬 임베딩을 반환한다."""
-    provider = os.getenv("EMBEDDING_PROVIDER", "openai").lower()
+    """OpenAI(또는 호환) Embeddings 인스턴스를 환경변수 기반으로 생성해 반환한다.
 
-    if provider == "openai":
-        from langchain_openai import OpenAIEmbeddings
+    읽는 env:
+        OPENAI_API_KEY           — 인증 (필수)
+        OPENAI_API_BASE          — OpenRouter 등 호환 게이트웨이 URL (선택)
+        OPENAI_EMBEDDING_MODEL   — 임베딩 모델 이름 (기본 'text-embedding-3-small')
+    """
+    from langchain_openai import OpenAIEmbeddings
 
-        base_url = os.getenv("OPENAI_API_BASE")
-        return OpenAIEmbeddings(
-            model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
-            **({"openai_api_base": base_url} if base_url else {}),
-        )
-
-    if provider == "local":
-        from langchain_huggingface import HuggingFaceEmbeddings
-
-        model_name = os.getenv("LOCAL_EMBEDDING_MODEL", "BAAI/bge-m3")
-        return HuggingFaceEmbeddings(
-            model_name=model_name,
-            encode_kwargs={"normalize_embeddings": True},
-        )
-
-    raise ValueError(f"Unknown EMBEDDING_PROVIDER: {provider!r}")
+    base_url = _clean_env("OPENAI_API_BASE") or None
+    return OpenAIEmbeddings(
+        model=_clean_env("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+        **({"openai_api_base": base_url} if base_url else {}),
+    )
 
 
 def provider_badge() -> str:
-    """현재 설정된 provider 조합을 한 줄로 표시."""
-    llm = os.getenv("LLM_PROVIDER", "openai")
-    emb = os.getenv("EMBEDDING_PROVIDER", "openai")
-    mode = "🔒 Airgap" if (llm == "ollama" and emb == "local") else "☁️ Cloud"
-    return f"{mode} | LLM={llm} | EMBEDDING={emb}"
+    """현재 설정된 모델을 한 줄로 표시."""
+    return f"☁️ OpenAI | model={_clean_env('OPENAI_MODEL', 'gpt-4o-mini')}"

@@ -24,10 +24,13 @@ def load_docx(path: str | Path) -> list[Document]:
 
 
 def load_hwpx(path: str | Path) -> list[Document]:
-    """python-hwpx 기반. HWP(구버전)는 지원하지 않으니 PDF 변환 후 load_pdf 사용."""
-    from hwpx.document import Document as HwpxDoc  # type: ignore
+    """python-hwpx 기반. HWP(구버전)는 지원하지 않으니 PDF 변환 후 load_pdf 사용.
 
-    text = "\n".join(p.text for p in HwpxDoc(str(path)).paragraphs)
+    python-hwpx 2.x API: ``HwpxDocument.open(path).export_text()``.
+    """
+    from hwpx.document import HwpxDocument
+
+    text = HwpxDocument.open(str(path)).export_text()
     return [Document(page_content=text, metadata={"source": str(path)})]
 
 
