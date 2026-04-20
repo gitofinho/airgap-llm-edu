@@ -28,7 +28,9 @@ uv run jupyter lab
 ```
 common/       provider 추상화·한국어 로더·토크나이저
 day1/         Day 1 기초 과정 노트북 (10개, 🧩 심화 1개 포함)
-day2/         Day 2 심화 과정 노트북 (13개, 🧩 심화 2개 포함)
+day2/         Day 2 심화 과정 노트북 (13개, 🧩 심화 2개 포함) — 단독 수강 가능, [day2/README.md](day2/README.md) 참조
 data/         샘플 PDF·코퍼스·KG·PII 테스트셋
 assets/       다이어그램·시각화 이미지
 ```
+
+> **Day 2만 수강하는 분**은 [`day2/README.md`](day2/README.md)의 "30분 사전 지식 요약" 섹션부터 시작하세요. Day 1 없이도 세션 3~4가 독립적으로 돌아가도록 구성되어 있습니다.
