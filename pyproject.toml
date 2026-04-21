@@ -85,5 +85,10 @@ prerelease = "if-necessary-or-explicit"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = [
+    "hf-transfer>=0.1.9",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["common"]
