@@ -23,6 +23,16 @@ uv run jupyter lab
 
 자세한 셋업·트러블슈팅은 [SETUP.md](SETUP.md). 폐쇄망 오프라인 반입 절차 포함.
 
+### (선택) OpenWebUI + Langfuse 시연 스택
+
+노트북 실습 외에 학생용 chat UI + LLM 관측성까지 시연하려면:
+```bash
+docker compose up -d
+# http://localhost:3000  OpenWebUI
+# http://localhost:3001  Langfuse  (admin@airgap.local / admin1234)
+```
+자세한 절차는 [SETUP.md §4](SETUP.md#4-docker-서비스--openwebui--pipelines--langfuse-스택).
+
 ## 디렉터리
 
 ```
